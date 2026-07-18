@@ -4,9 +4,9 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-PROJECT_DIR="$ROOT/projects/dacon_segmentation_pipeline"
-DATA_ROOT="$ROOT/data/dacon_236092_holdout"
-OUTPUT_DIR="$ROOT/runs/dacon_unetpp_v1"
+PROJECT_DIR="$ROOT/projects/segmentation_pipeline"
+DATA_ROOT="$ROOT/data/satellite_holdout"
+OUTPUT_DIR="$ROOT/runs/unetpp_v1"
 LIVE_LOG="$OUTPUT_DIR/live.log"
 ORCH_LOG="$OUTPUT_DIR/orchestrator.log"
 TARGET_EPOCH=10
@@ -50,7 +50,7 @@ while true; do
   epoch_now="$(current_epoch)"
   if [[ "$epoch_now" -ge "$TARGET_EPOCH" ]]; then
     echo "[$(timestamp)] target reached at epoch $epoch_now" | tee -a "$ORCH_LOG"
-    osascript -e 'display notification "UNet++ patch training reached target epoch." with title "Training Complete"' >/dev/null 2>&1 || true
+    osascript -e 'display notification "UNet++ training reached target epoch." with title "Training Complete"' >/dev/null 2>&1 || true
     break
   fi
 

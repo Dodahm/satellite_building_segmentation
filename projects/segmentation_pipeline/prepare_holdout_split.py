@@ -9,20 +9,20 @@ import torch
 
 # -----------------------------------------------------------------------------
 # 역할:
-# - DACON 원본 데이터는 train.csv / test.csv 구조만 제공한다.
+# - 원본 데이터는 train.csv / test.csv 구조를 기준으로 구성된다.
 # - 모델 성능을 내부에서 검증하려면 train.csv 일부를 validation으로 떼어내야 한다.
-# - 이 스크립트는 원본 DACON train.csv를
+# - 이 스크립트는 원본 train.csv를
 #   train.csv / holdout_truth.csv / test.csv 구조로 다시 저장한다.
 #
 # 왜 만들었는가:
 # - train_segmentation_pipeline.py는 holdout_truth.csv를 기준으로
 #   threshold sweep과 validation Dice를 계산한다.
-# - 원본 DACON 데이터에도 같은 검증 체계를 적용하기 위해 split 단계가 필요했다.
+# - 원본 데이터에도 같은 검증 체계를 적용하기 위한 split 단계가 필요했다.
 # -----------------------------------------------------------------------------
 
 
 def parse_args() -> argparse.Namespace:
-    # data-root: DACON 원본 데이터가 들어 있는 폴더
+    # data-root: 원본 데이터가 들어 있는 폴더
     # output-root: 학습 코드가 읽을 split CSV를 저장할 폴더
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", type=Path, required=True)
@@ -47,7 +47,7 @@ def make_splits(length: int, val_ratio: float, seed: int) -> tuple[list[int], li
 
 
 def absolutize_paths(df: pd.DataFrame, data_root: Path) -> pd.DataFrame:
-    # DACON CSV의 상대경로를 실제 학습 코드가 바로 읽을 수 있는 절대경로로 바꾼다.
+    # CSV의 상대경로를 실제 학습 코드가 바로 읽을 수 있는 절대경로로 바꾼다.
     #
     # 변경 전:
     # - CSV에는 ./train_img/TRAIN_0000.png 같은 상대경로가 들어 있었다.

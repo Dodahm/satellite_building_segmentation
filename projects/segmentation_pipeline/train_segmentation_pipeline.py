@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 # -----------------------------------------------------------------------------
-# 이 파일은 DACON 건물 segmentation 재현 + 파인튜닝 실험용 메인 학습 코드다.
+# 이 파일은 위성 이미지 건물 segmentation 재현 + 파인튜닝 실험용 메인 학습 코드다.
 #
 # 학습 흐름 요약
 # 1. train.csv / holdout_truth.csv / test.csv를 읽는다.
@@ -29,8 +29,8 @@ from tqdm import tqdm
 # 7. 마지막에는 선택한 모델들의 soft voting 결과로 제출용 RLE CSV를 만든다.
 #
 # 참고:
-# - DACON 원본 train.csv를 train/holdout으로 나눠 내부 validation을 수행한다.
-# - 원본 DACON 기준 기록:
+# - 원본 train.csv를 train/holdout으로 나눠 내부 validation을 수행한다.
+# - 내부 holdout 기준 기록:
 #   UNet++ + crop_size=384 + image_size=256 + focal_dice + TTA + 후처리 + 10 epoch
 #   holdout validation Dice = 0.7991
 # - train/validation 이미지는 1024x1024라 384 crop이 가능하지만,
@@ -44,7 +44,7 @@ from tqdm import tqdm
 #   추가 학습 효과가 거의 없었다.
 # - 그래서 --init-checkpoint-dir 옵션을 추가해 "모델 가중치만" 불러오고,
 #   optimizer와 scheduler는 새 learning rate로 다시 시작하게 했다.
-# - 최종 실행은 DACON 원본 train split만 사용했고, 외부 데이터는 사용하지 않았다.
+# - 최종 실행은 원본 train split만 사용했고, 외부 데이터는 사용하지 않았다.
 # - 최종 holdout validation Dice: 0.8007050573, best threshold: 0.37
 # -----------------------------------------------------------------------------
 
@@ -374,7 +374,7 @@ def main() -> None:
     set_seed(args.seed)
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    # prepare_dacon_raw_holdout.py로 만든 holdout 데이터셋 경로를 읽는다.
+    # prepare_holdout_split.py로 만든 holdout 데이터셋 경로를 읽는다.
     train_csv = args.data_root / "train.csv"
     val_csv = args.data_root / "holdout_truth.csv"
     test_csv = args.data_root / "test.csv"
@@ -396,7 +396,7 @@ def main() -> None:
     # test_ds = SatelliteDataset(test_csv, build_transforms(args.image_size, train=False, crop_size=args.crop_size), infer=True)
     #
     # 문제:
-    # - 원본 DACON test 이미지는 224x224다.
+    # - 원본 test 이미지는 224x224다.
     # - 최종 학습 설정의 crop_size=384를 그대로 test에 적용하면
     #   CropSizeError가 발생한다.
     #
@@ -427,7 +427,7 @@ def main() -> None:
     # 왜 바꿨는가:
     # - 현재 최고 Dice가 0.7991로 0.8 바로 아래에 있어,
     #   0.05 간격 threshold sweep만으로는 최적점을 놓칠 수 있다.
-    # - DACON 규칙상 threshold 튜닝은 train/validation 기준 후처리이므로 허용 범위 안이다.
+    # - threshold 튜닝은 train/validation 기준 후처리로 처리한다.
     thresholds = [
         round(float(x), 4)
         for x in np.arange(args.threshold_start, args.threshold_end + args.threshold_step / 2, args.threshold_step)
@@ -465,8 +465,8 @@ def main() -> None:
         # - optimizer와 scheduler는 현재 --lr, --epochs 기준으로 새로 시작한다.
         #
         # 왜 바꿨는가:
-        # - DACON 규칙을 지키면서 0.7991 -> 0.8+를 노리려면
-        #   외부 데이터가 아니라 기존 train split에서 낮은 LR fine-tuning을 해야 한다.
+        # - 0.7991 -> 0.8+를 노리기 위해
+        #   외부 데이터 추가보다 기존 train split 기반 낮은 LR fine-tuning을 우선 적용한다.
         if args.init_checkpoint_dir is not None:
             init_ckpt_path = args.init_checkpoint_dir / f"{model_name}_best.pt"
             if init_ckpt_path.exists():
@@ -681,7 +681,7 @@ def main() -> None:
             probs = sum(test_prob_bank[name][i] for name in model_names) / len(model_names)
             mask = postprocess_mask((probs > ensemble_best_threshold).astype(np.uint8), min_area=args.min_area, fill_holes=args.fill_holes)
             rle = rle_encode(mask)
-            # 예측 건물이 없으면 DACON 규칙에 맞춰 -1 처리한다.
+            # 예측 건물이 없으면 빈 mask 규칙에 맞춰 -1 처리한다.
             submission_rows.append({"img_id": img_id, "mask_rle": rle if rle else "-1"})
 
         pd.DataFrame(submission_rows).to_csv(args.output_dir / "submission.csv", index=False)

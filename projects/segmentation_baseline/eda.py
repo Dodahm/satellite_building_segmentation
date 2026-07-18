@@ -13,7 +13,7 @@ from src.utils import rle_decode
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="DACON building segmentation EDA")
+    parser = argparse.ArgumentParser(description="Satellite building segmentation EDA")
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=Path("runs/eda"))
     parser.add_argument("--num-samples", type=int, default=12)
@@ -91,7 +91,7 @@ def build_summary(
     test_shape_counts: dict[str, int],
 ) -> dict[str, object]:
     return {
-        "competition_constraints": {
+        "dataset_assumptions": {
             "train_contains_buildings": True,
             "test_may_have_no_buildings": True,
             "submission_empty_mask_value": "-1",

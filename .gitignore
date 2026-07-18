@@ -51,9 +51,4 @@ outputs/
 VSCODE_RUN_DEBUG.md
 scripts/
 projects/spacenet_segmentation_experiment/
-projects/dacon_segmentation_pipeline/prepare_dacon_proxy.py
-projects/dacon_segmentation_pipeline/run_dacon_rule_compliant_080_final.sh
-projects/dacon_segmentation_baseline/.gitignore
-projects/dacon_segmentation_baseline/requirements.txt
-projects/dacon_segmentation_baseline/run_until_complete.sh
 scripts/generate_person_environment_fit_pdf.py
