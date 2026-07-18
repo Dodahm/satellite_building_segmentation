@@ -1,8 +1,8 @@
 # Satellite Image Building Area Segmentation
 
-위성 이미지에서 건물 영역을 픽셀 단위로 분할하고, 예측 mask를 RLE 형식으로 변환하는 segmentation 프로젝트이다.
+위성 이미지 건물 영역 pixel-level segmentation 및 RLE 기반 prediction CSV 생성
 
-이 저장소의 범위는 **데이터 구조 이해 -> baseline U-Net -> UNet++ 개선 모델 -> holdout validation -> threshold tuning -> inference CSV 생성**까지의 핵심 학습 코드임.
+저장소 범위: **데이터 구조 이해 -> baseline U-Net -> UNet++ 개선 모델 -> holdout validation -> threshold tuning -> inference CSV 생성** 핵심 학습 코드
 
 ## Key Results
 
@@ -12,7 +12,7 @@
 | UNet++ 10 epoch | Holdout Dice 0.7998 | train split 기반 내부 holdout validation |
 | UNet++ fine-tuning | Holdout Dice 0.8007 | 기존 best weight에서 낮은 learning rate로 추가 검증 |
 
-위 수치는 내부 validation 결과임. 모델 가중치와 원본 데이터는 저장소에 포함하지 않음.
+수치 기준: 내부 validation / 모델 가중치와 원본 데이터 제외
 
 ## What This Project Shows
 
@@ -49,7 +49,7 @@
 
 ## Data
 
-원본 이미지와 CSV는 저장소에 포함하지 않음. 아래 구조로 로컬 배치 후 실행.
+저장소 포함 범위: 코드와 문서 / 원본 이미지와 CSV 제외
 
 ```text
 data/
@@ -65,7 +65,7 @@ data/
     └── prediction_template.csv
 ```
 
-`data/`, `runs/`, model weight, 압축파일은 Git 제외 대상임.
+Git 제외 대상: `data/`, `runs/`, model weight, 압축파일
 
 ## Environment
 
@@ -78,7 +78,7 @@ pip install -r requirements.txt
 
 ## Baseline U-Net
 
-기본 U-Net 학습 코드는 `projects/segmentation_baseline`에 위치함.
+기본 U-Net 학습 코드: `projects/segmentation_baseline`
 
 ```bash
 python projects/segmentation_baseline/train.py \
@@ -92,7 +92,7 @@ python projects/segmentation_baseline/train.py \
   --output-dir runs/unet_baseline
 ```
 
-추론 CSV 생성.
+추론 CSV 생성
 
 ```bash
 python projects/segmentation_baseline/infer.py \
@@ -106,7 +106,7 @@ python projects/segmentation_baseline/infer.py \
 
 ## Improved UNet++ Pipeline
 
-먼저 `train.csv`를 학습/검증용 holdout 구조로 분리.
+Holdout split 생성
 
 ```bash
 python projects/segmentation_pipeline/prepare_holdout_split.py \
@@ -116,7 +116,7 @@ python projects/segmentation_pipeline/prepare_holdout_split.py \
   --seed 42
 ```
 
-UNet++ 기반 학습.
+UNet++ 기반 학습
 
 ```bash
 python projects/segmentation_pipeline/train_segmentation_pipeline.py \
@@ -134,7 +134,7 @@ python projects/segmentation_pipeline/train_segmentation_pipeline.py \
   --loss-type focal_dice
 ```
 
-기존 best weight에서 낮은 learning rate로 추가 fine-tuning.
+기존 best weight 기반 낮은 learning rate fine-tuning
 
 ```bash
 python projects/segmentation_pipeline/train_segmentation_pipeline.py \
@@ -156,7 +156,7 @@ python projects/segmentation_pipeline/train_segmentation_pipeline.py \
   --threshold-step 0.01
 ```
 
-학습 중단 시 자동 재개.
+학습 중단 시 자동 재개
 
 ```bash
 zsh projects/segmentation_pipeline/run_training_until_complete.sh
@@ -186,6 +186,6 @@ predictions.csv
 
 ## Notes
 
-- 원본 데이터와 외부 데이터셋은 각 제공처의 이용 규정 준수 대상.
-- 내부 validation 결과와 외부 평가 점수는 별개임.
-- 저장소 목적은 학습 재현에 필요한 핵심 segmentation 코드 정리임.
+- 원본 데이터와 외부 데이터셋: 제공처 이용 규정 준수
+- 내부 validation 결과와 외부 평가 점수: 별개
+- 저장소 목적: 학습 재현에 필요한 핵심 segmentation 코드 정리
