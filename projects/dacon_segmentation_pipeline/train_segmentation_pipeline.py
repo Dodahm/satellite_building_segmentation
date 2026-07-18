@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 # -----------------------------------------------------------------------------
-# 이 파일은 DACON-style segmentation 재현 + 파인튜닝 실험용 메인 학습 코드다.
+# 이 파일은 DACON 건물 segmentation 재현 + 파인튜닝 실험용 메인 학습 코드다.
 #
 # 학습 흐름 요약
 # 1. train.csv / holdout_truth.csv / test.csv를 읽는다.
@@ -26,11 +26,10 @@ from tqdm import tqdm
 # 4. validation에서는 threshold sweep으로 최적 Dice를 찾는다.
 # 5. 필요하면 TTA와 후처리를 적용한다.
 # 6. 가장 좋은 checkpoint만 저장한다.
-# 7. 마지막에는 soft voting ensemble과 제출용 RLE CSV를 만든다.
+# 7. 마지막에는 선택한 모델들의 soft voting 결과로 제출용 RLE CSV를 만든다.
 #
 # 참고:
-# - 처음에는 SpaceNet 기반 proxy 데이터셋에 맞춰 만들었고,
-#   이후 DACON 원본 데이터를 holdout split한 구조에도 쓰도록 확장했다.
+# - DACON 원본 train.csv를 train/holdout으로 나눠 내부 validation을 수행한다.
 # - 원본 DACON 기준 기록:
 #   UNet++ + crop_size=384 + image_size=256 + focal_dice + TTA + 후처리 + 10 epoch
 #   holdout validation Dice = 0.7991
@@ -375,7 +374,7 @@ def main() -> None:
     set_seed(args.seed)
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    # DACON 스타일로 만든 proxy 데이터셋 경로를 읽는다.
+    # prepare_dacon_raw_holdout.py로 만든 holdout 데이터셋 경로를 읽는다.
     train_csv = args.data_root / "train.csv"
     val_csv = args.data_root / "holdout_truth.csv"
     test_csv = args.data_root / "test.csv"
@@ -685,7 +684,7 @@ def main() -> None:
             # 예측 건물이 없으면 DACON 규칙에 맞춰 -1 처리한다.
             submission_rows.append({"img_id": img_id, "mask_rle": rle if rle else "-1"})
 
-        pd.DataFrame(submission_rows).to_csv(args.output_dir / "proxy_submission.csv", index=False)
+        pd.DataFrame(submission_rows).to_csv(args.output_dir / "submission.csv", index=False)
     summary = {
         "data_root": str(args.data_root),
         "device": str(device),

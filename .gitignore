@@ -1,6 +1,7 @@
 # OS / editor
 .DS_Store
 .idea/
+.vscode/
 .vscode/*.log
 
 # Python caches and environments
@@ -17,6 +18,8 @@ tmp/
 # Node dependencies
 node_modules/
 npm-debug.log*
+package.json
+package-lock.json
 
 # Data and generated experiment outputs
 data/
@@ -36,6 +39,8 @@ outputs/
 *.tar
 *.tar.gz
 *.tgz
+*.pptx
+*.pdf
 
 # Logs and local notebooks
 *.log
@@ -43,4 +48,12 @@ outputs/
 .ipynb_checkpoints/
 
 # Local-only generated files
+VSCODE_RUN_DEBUG.md
+scripts/
+projects/spacenet_segmentation_experiment/
+projects/dacon_segmentation_pipeline/prepare_dacon_proxy.py
+projects/dacon_segmentation_pipeline/run_dacon_rule_compliant_080_final.sh
+projects/dacon_segmentation_baseline/.gitignore
+projects/dacon_segmentation_baseline/requirements.txt
+projects/dacon_segmentation_baseline/run_until_complete.sh
 scripts/generate_person_environment_fit_pdf.py

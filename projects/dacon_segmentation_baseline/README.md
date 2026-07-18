@@ -20,7 +20,7 @@
 data/dacon_236092_raw
 ```
 
-이 경로를 먼저 기준으로 잡고, baseline 프로젝트의 `data/dacon_satellite`는 symlink로 연결하는 방식을 권장합니다.
+이 경로를 기준으로 실행하는 방식을 권장합니다.
 
 원본 데이터가 어디에 다운로드되었는지 확인하거나 symlink를 준비하려면 아래 스크립트를 먼저 실행하면 됩니다.
 
@@ -37,7 +37,7 @@ python prepare_dacon_raw_data.py --source-dir /absolute/path/to/downloaded/dacon
 아래 구조로 데이터를 두면 됩니다.
 
 ```text
-data/dacon_satellite/
+data/dacon_236092_raw/
   train_img/
     TRAIN_0000.png
     ...
@@ -62,7 +62,7 @@ Python 3.9 이상을 권장합니다.
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r ../../requirements.txt
 ```
 
 ## 3. 먼저 학습 돌리기
@@ -71,7 +71,7 @@ pip install -r requirements.txt
 
 ```bash
 python train.py \
-  --data-root /absolute/path/to/data/dacon_satellite \
+  --data-root ../../data/dacon_236092_raw \
   --image-size 224 \
   --epochs 20 \
   --batch-size 8 \
@@ -98,7 +98,7 @@ python train.py \
 
 ```bash
 python eda.py \
-  --data-root /absolute/path/to/data/dacon_satellite \
+  --data-root ../../data/dacon_236092_raw \
   --output-dir runs/eda \
   --num-samples 12
 ```
@@ -126,7 +126,7 @@ python eda.py \
 
 ```bash
 python infer.py \
-  --data-root /absolute/path/to/data/dacon_satellite \
+  --data-root ../../data/dacon_236092_raw \
   --checkpoint runs/unet_baseline/best.pt \
   --image-size 224 \
   --batch-size 16 \

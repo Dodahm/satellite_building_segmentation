@@ -5,8 +5,8 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PROJECT_DIR="$ROOT/projects/dacon_segmentation_pipeline"
-DATA_ROOT="$ROOT/data/dacon_236092_patch_ready"
-OUTPUT_DIR="$ROOT/runs/dacon_raw_patch_unetpp_v1"
+DATA_ROOT="$ROOT/data/dacon_236092_holdout"
+OUTPUT_DIR="$ROOT/runs/dacon_unetpp_v1"
 LIVE_LOG="$OUTPUT_DIR/live.log"
 ORCH_LOG="$OUTPUT_DIR/orchestrator.log"
 TARGET_EPOCH=10
@@ -42,7 +42,7 @@ PY
   fi
 }
 
-echo "[$(timestamp)] raw patch auto-runner start" | tee -a "$ORCH_LOG"
+echo "[$(timestamp)] holdout training auto-runner start" | tee -a "$ORCH_LOG"
 echo "[$(timestamp)] target epoch: $TARGET_EPOCH" | tee -a "$ORCH_LOG"
 echo "[$(timestamp)] output dir: $OUTPUT_DIR" | tee -a "$ORCH_LOG"
 
