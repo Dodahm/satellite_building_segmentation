@@ -15,6 +15,15 @@ from src.model import UNet
 from src.utils import rle_encode
 
 
+def load_prediction_template(data_root: Path) -> pd.DataFrame:
+    template_path = data_root / "prediction_template.csv"
+    if template_path.exists():
+        return pd.read_csv(template_path)
+
+    test_df = pd.read_csv(data_root / "test.csv")
+    return test_df[["img_id"]].assign(mask_rle="-1")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", type=Path, required=True)
@@ -47,7 +56,7 @@ def main() -> None:
     test_csv = args.data_root / "test.csv"
     dataset = TestDataset(test_csv, args.data_root, image_size=args.image_size)
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
-    sample_submission = pd.read_csv(args.data_root / "sample_submission.csv")
+    template_df = load_prediction_template(args.data_root)
 
     rows: list[dict[str, str]] = []
     with torch.no_grad():
@@ -61,7 +70,7 @@ def main() -> None:
                 mask = resize_mask(pred[0], original_shape)
                 rows.append({"img_id": img_id, "mask_rle": rle_encode(mask)})
 
-    df = sample_submission[["img_id"]].merge(pd.DataFrame(rows), on="img_id", how="left")
+    df = template_df[["img_id"]].merge(pd.DataFrame(rows), on="img_id", how="left")
     df["mask_rle"] = df["mask_rle"].fillna("-1")
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.output_csv, index=False, encoding="utf-8")

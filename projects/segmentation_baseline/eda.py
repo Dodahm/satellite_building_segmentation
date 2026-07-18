@@ -94,7 +94,7 @@ def build_summary(
         "dataset_assumptions": {
             "train_contains_buildings": True,
             "test_may_have_no_buildings": True,
-            "submission_empty_mask_value": "-1",
+            "empty_prediction_value": "-1",
             "external_data_allowed": False,
             "eda_rule": "Use train-centered analysis; do not tune directly on test patterns.",
         },
@@ -122,7 +122,7 @@ def build_summary(
         "eda_recommendations": [
             "If train images are much larger than test images, compare naive resize against patch-based training.",
             "If many masks have very small building ratios, prioritize boundary-preserving augmentation and higher-resolution crops.",
-            "Because test images may contain no buildings, validate the no-building threshold and keep '-1' submission handling.",
+            "Because test images may contain no buildings, validate the no-building threshold and keep '-1' empty prediction handling.",
             "Prefer stratified validation splits using building_ratio buckets to reduce score variance.",
         ],
     }

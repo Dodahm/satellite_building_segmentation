@@ -37,7 +37,7 @@ def make_splits(length: int, val_ratio: float, seed: int) -> tuple[list[int], li
     #
     # 개선 포인트:
     # - seed를 고정해 같은 train/validation 분할이 반복 재현되도록 했다.
-    # - 포트폴리오에 기록한 5712/1428 split도 이 함수 결과다.
+    # - split 비율 기록도 이 함수 결과 기준이다.
     rng = torch.Generator().manual_seed(seed)
     indices = torch.randperm(length, generator=rng).tolist()
     val_size = int(length * val_ratio)
@@ -66,7 +66,7 @@ def main() -> None:
 
     train_csv = args.data_root / "train.csv"
     test_csv = args.data_root / "test.csv"
-    sample_submission_csv = args.data_root / "sample_submission.csv"
+    template_csv = args.data_root / "prediction_template.csv"
 
     train_df = pd.read_csv(train_csv)
     test_df = pd.read_csv(test_csv)
@@ -81,8 +81,8 @@ def main() -> None:
     train_split.to_csv(args.output_root / "train.csv", index=False)
     holdout_split.to_csv(args.output_root / "holdout_truth.csv", index=False)
     test_split.to_csv(args.output_root / "test.csv", index=False)
-    if sample_submission_csv.exists():
-        pd.read_csv(sample_submission_csv).to_csv(args.output_root / "sample_submission.csv", index=False)
+    if template_csv.exists():
+        pd.read_csv(template_csv).to_csv(args.output_root / "prediction_template.csv", index=False)
 
     summary = {
         "source_root": str(args.data_root),

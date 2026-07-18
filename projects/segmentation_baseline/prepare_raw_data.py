@@ -55,7 +55,6 @@ def looks_like_dataset_root(path: Path) -> tuple[bool, list[str]]:
         "test_img",
         "train.csv",
         "test.csv",
-        "sample_submission.csv",
     ]
     missing = [name for name in required if not (path / name).exists()]
     return len(missing) == 0, missing
@@ -112,7 +111,7 @@ def main() -> None:
             print("[INFO] 아래 표준 경로에 원본 데이터 배치 필요:")
             print(f"       {args.target_dir}")
             print("[INFO] 필요한 구조:")
-            print("       train_img/, test_img/, train.csv, test.csv, sample_submission.csv")
+            print("       train_img/, test_img/, train.csv, test.csv")
             raise SystemExit(0)
         source_dir = matches[0]
         print(f"[OK] 자동 탐색으로 원본 데이터 후보 확인: {source_dir}")

@@ -26,7 +26,7 @@ from tqdm import tqdm
 # 4. validation에서는 threshold sweep으로 최적 Dice를 찾는다.
 # 5. 필요하면 TTA와 후처리를 적용한다.
 # 6. 가장 좋은 checkpoint만 저장한다.
-# 7. 마지막에는 선택한 모델들의 soft voting 결과로 제출용 RLE CSV를 만든다.
+# 7. 마지막에는 선택한 모델들의 soft voting 결과로 prediction CSV를 만든다.
 #
 # 참고:
 # - 원본 train.csv를 train/holdout으로 나눠 내부 validation을 수행한다.
@@ -71,7 +71,7 @@ def rle_decode(mask_rle: str, shape: tuple[int, int]) -> np.ndarray:
 
 
 def rle_encode(mask: np.ndarray) -> str:
-    # 예측 마스크를 다시 제출용 RLE 문자열로 바꾼다.
+    # 예측 마스크를 다시 RLE 문자열로 바꾼다.
     pixels = mask.flatten()
     pixels = np.concatenate([[0], pixels, [0]])
     runs = np.where(pixels[1:] != pixels[:-1])[0] + 1
@@ -369,7 +369,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     # main 함수 역할:
     # - 전체 학습 파이프라인을 순서대로 실행하는 진입점
-    # - 데이터 로드 -> 모델 학습 -> 검증 -> 앙상블 -> 제출 파일 생성까지 담당
+    # - 데이터 로드 -> 모델 학습 -> 검증 -> 앙상블 -> prediction CSV 생성까지 담당
     args = parse_args()
     set_seed(args.seed)
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -403,7 +403,7 @@ def main() -> None:
     # 변경 후:
     # - train/validation은 384 crop -> 256 input을 유지한다.
     # - test inference는 crop 없이 resize-only transform을 사용한다.
-    # - test-image-size 기본값을 224로 두어 제출 RLE 크기가 test 이미지와 맞도록 했다.
+    # - test-image-size 기본값을 224로 두어 prediction mask 크기가 test 이미지와 맞도록 했다.
     test_ds = SatelliteDataset(
         test_csv,
         build_transforms(args.test_image_size, train=False, crop_size=None),
@@ -676,15 +676,15 @@ def main() -> None:
             ensemble_best_threshold = threshold
 
     if not args.skip_infer:
-        submission_rows = []
+        prediction_rows = []
         for i, img_id in enumerate(pd.read_csv(test_csv)["img_id"].tolist()):
             probs = sum(test_prob_bank[name][i] for name in model_names) / len(model_names)
             mask = postprocess_mask((probs > ensemble_best_threshold).astype(np.uint8), min_area=args.min_area, fill_holes=args.fill_holes)
             rle = rle_encode(mask)
             # 예측 건물이 없으면 빈 mask 규칙에 맞춰 -1 처리한다.
-            submission_rows.append({"img_id": img_id, "mask_rle": rle if rle else "-1"})
+            prediction_rows.append({"img_id": img_id, "mask_rle": rle if rle else "-1"})
 
-        pd.DataFrame(submission_rows).to_csv(args.output_dir / "submission.csv", index=False)
+        pd.DataFrame(prediction_rows).to_csv(args.output_dir / "predictions.csv", index=False)
     summary = {
         "data_root": str(args.data_root),
         "device": str(device),

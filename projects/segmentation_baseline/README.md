@@ -44,7 +44,7 @@ data/satellite_raw/
     ...
   train.csv
   test.csv
-  sample_submission.csv
+  prediction_template.csv
 ```
 
 가정 컬럼.
@@ -53,7 +53,7 @@ data/satellite_raw/
 |---|---|
 | `train.csv` | `img_id`, `img_path`, `mask_rle` |
 | `test.csv` | `img_id`, `img_path` |
-| `sample_submission.csv` | `img_id`, `mask_rle` |
+| `prediction_template.csv` | `img_id`, `mask_rle` |
 
 ## 2. 환경 설치
 
@@ -136,14 +136,14 @@ python infer.py \
   --image-size 224 \
   --batch-size 16 \
   --threshold 0.5 \
-  --output-csv runs/unet_baseline/submission.csv
+  --output-csv runs/unet_baseline/predictions.csv
 ```
 
 처리 흐름.
 
 - 테스트 이미지를 추론 크기로 resize.
 - 예측 mask를 원래 해상도로 복원.
-- `sample_submission.csv`와 같은 컬럼 구조로 저장.
+- prediction template과 같은 컬럼 구조로 저장.
 - 예측 건물이 없으면 `mask_rle` 값을 `-1`로 저장.
 
 ## 6. 개선 순서

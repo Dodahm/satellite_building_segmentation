@@ -11,7 +11,6 @@
 | Baseline | 자체 검증 기준 | U-Net 기반 기본 segmentation pipeline |
 | UNet++ 10 epoch | Holdout Dice 0.7998 | train split 기반 내부 holdout validation |
 | UNet++ fine-tuning | Holdout Dice 0.8007 | 기존 best weight에서 낮은 learning rate로 추가 검증 |
-| External Score | 미확인 | 외부 평가 서버 제출 결과 미포함 |
 
 위 수치는 내부 validation 결과임. 모델 가중치와 원본 데이터는 저장소에 포함하지 않음.
 
@@ -19,11 +18,11 @@
 
 | 역량 | 프로젝트에서 확인 가능한 내용 |
 |---|---|
-| 데이터 이해 | `train.csv`, `test.csv`, `sample_submission.csv`, RLE mask 구조 분석 |
+| 데이터 이해 | `train.csv`, `test.csv`, prediction template, RLE mask 구조 분석 |
 | 모델링 | U-Net baseline과 UNet++ 기반 개선 모델 구현 |
 | 실험 설계 | holdout split, Dice metric, threshold sweep, TTA 적용 |
 | 성능 개선 | loss 변경, crop 기반 학습, 후처리, threshold 최적화 |
-| 추론 파이프라인 | 예측 mask를 RLE로 변환해 `submission.csv` 생성 |
+| 추론 파이프라인 | 예측 mask를 RLE로 변환해 `predictions.csv` 생성 |
 
 ## Repository Structure
 
@@ -63,7 +62,7 @@ data/
     │   └── ...
     ├── train.csv
     ├── test.csv
-    └── sample_submission.csv
+    └── prediction_template.csv
 ```
 
 `data/`, `runs/`, model weight, 압축파일은 Git 제외 대상임.
@@ -102,7 +101,7 @@ python projects/segmentation_baseline/infer.py \
   --image-size 224 \
   --batch-size 16 \
   --threshold 0.5 \
-  --output-csv runs/unet_baseline/submission.csv
+  --output-csv runs/unet_baseline/predictions.csv
 ```
 
 ## Improved UNet++ Pipeline
@@ -182,7 +181,7 @@ TTA + post-processing
     ↓
 RLE encode
     ↓
-submission.csv
+predictions.csv
 ```
 
 ## Notes
