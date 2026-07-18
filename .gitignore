@@ -1,0 +1,46 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*.log
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+tmp/
+
+# Node dependencies
+node_modules/
+npm-debug.log*
+
+# Data and generated experiment outputs
+data/
+runs/
+output/
+outputs/
+**/runs/
+**/data/
+
+# Model weights and large artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Logs and local notebooks
+*.log
+*.tmp
+.ipynb_checkpoints/
+
+# Local-only generated files
+scripts/generate_person_environment_fit_pdf.py
